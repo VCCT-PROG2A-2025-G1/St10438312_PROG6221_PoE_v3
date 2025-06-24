@@ -5,8 +5,177 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ST10438312_PROG6221_PoE_v3"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+                Height="800" Width="1200"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="#36393F">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.ColumnSpan="2"
+            Background="#252525"
+            MouseDown="Border_MouseDown">
+
+            <Grid HorizontalAlignment="Stretch">
+                <Label Content="CyberSecurity Awarness Bot"
+                       HorizontalAlignment="Center"
+                   Foreground="LightGray"
+                   FontWeight="SemiBold"/>
+
+                <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+
+                    <Button Width="20" Height="20"
+                        Content="🗕"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        Margin="0,0,0,3"
+                        Click="ButtonMinimize_Click"/>
+
+                    <Button Width="20" Height="20"
+                        Content="✕"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        Click="ButtonExit_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+
+        <Grid Background="#252525"
+          Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition/>
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Menu"
+               VerticalAlignment="Center"
+               FontWeight="Medium"
+               Foreground="Gray"
+               Margin="8,0,0,0"/>
+
+            <!-- We use the static resource MenuCard in order to create multiple buttons without rewriting similiar code multiple times -->
+            <ListView ItemsSource="{Binding Menu}"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  Grid.Row="1"
+                  />
+
+
+            <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    Background="#292B2F">
+
+                <Border CornerRadius="25"
+                    Width="25" Height="25"
+                    Background="#3bff6f"
+                    Margin="8,0,0,0"/>
+
+                <StackPanel VerticalAlignment="Center">
+                    <Label Content="Username"
+                       Foreground="White"
+                       FontWeight="SemiBold"/>
+
+                </StackPanel>
+
+            </StackPanel>
+
+
+        </Grid>
+
+        <Grid Grid.Column="1"
+          Grid.Row="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80"/>
+                <RowDefinition/>
+                <RowDefinition Height="70"/>
+            </Grid.RowDefinitions>
+
+            <Border>
+                <Grid HorizontalAlignment="Stretch"
+          Background="#2F3136"
+          Margin="0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="40,0,0,10">
+                        <TextBlock Text="&#xE99A;" 
+                                   FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="48" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
+                        <Label Content="Chatbot"
+                               Background="#2F3136"
+                               Foreground="White"
+                               FontWeight="Bold"
+                               FontSize="48"
+                               Padding="0" FontFamily="Cascadia Code"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ScrollViewer x:Name="ChatScrollViewer" 
+              Grid.Row="1"
+              VerticalScrollBarVisibility="Auto" 
+              HorizontalScrollBarVisibility="Disabled"
+              Background="#36393F"
+              Padding="15,10">
+                <StackPanel x:Name="ChatPanel" Orientation="Vertical"/>
+            </ScrollViewer>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="90"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="MessageTextBox"
+                         Grid.Row="1"
+                         Height="50"
+                         Text=""
+                         Style="{StaticResource MessageBox}"
+                         Grid.ColumnSpan="2"/>
+
+                <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Grid.Column="1"
+                        Margin="0,0,16,0"/>
+
+                <!-- Send button -->
+                <Button Grid.Column="1" 
+                        Background="Transparent" 
+                        BorderThickness="0"
+                        Padding="16,12"
+                        VerticalAlignment="Stretch"
+                        Cursor="Hand"
+                        Name="SendButton" Focusable="False" Click="SendButton_Click">
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE724;" 
+                                   FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="24" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+        </Grid>
+
+
     </Grid>
 </Window>

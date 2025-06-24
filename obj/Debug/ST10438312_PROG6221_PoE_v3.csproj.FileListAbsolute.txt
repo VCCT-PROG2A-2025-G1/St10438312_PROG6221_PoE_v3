@@ -1,0 +1,17 @@
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3.csproj.AssemblyReference.cache
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\Theme\MessageBox.baml
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\MainWindow.g.cs
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3_MarkupCompile.cache
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3_MarkupCompile.lref
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\bin\Debug\ST10438312_PROG6221_PoE_v3.exe.config
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\bin\Debug\ST10438312_PROG6221_PoE_v3.exe
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\bin\Debug\ST10438312_PROG6221_PoE_v3.pdb
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\App.g.cs
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\App.baml
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\MainWindow.baml
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3.g.resources
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3.Properties.Resources.resources
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3.csproj.GenerateResource.cache
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3.csproj.CoreCompileInputs.cache
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3.exe
+C:\Users\Admin\OneDrive\Desktop\ST10438312_PROG6221_PoE_v3\ST10438312_PROG6221_PoE_v3\obj\Debug\ST10438312_PROG6221_PoE_v3.pdb
