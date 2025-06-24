@@ -1,0 +1,52 @@
+# Build results
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# Visual Studio working folders
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Temporary files
+*.log
+*.tmp
+*.cache
+
+# NuGet packages
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Backup & metadata
+*.bak
+*.dbmdl
+*.orig
+
+# Test results
+TestResults/
+*.trx
+
+# Publish folders
+publish/
+out/
+
+# Others
+_ReSharper*/
+*.resharper
+*.DotSettings.user
+
+# Ignore auto-generated files
+Generated\
+
+# JetBrains Rider
+.idea/

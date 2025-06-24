@@ -66,6 +66,7 @@
     <Compile Include="Chatbot.cs" />
     <Compile Include="Chatbot_Response.cs" />
     <Compile Include="ChatMessage.cs" />
+    <Compile Include="CybersecurityQuiz.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
