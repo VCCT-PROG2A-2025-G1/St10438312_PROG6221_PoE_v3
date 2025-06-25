@@ -24,8 +24,8 @@ namespace ST10438312_PROG6221_PoE_v3
 
         private string userName;
         private string favTopic;
-        private string pendingSentiment; // Stores the detected sentiment
-        private string pendingSentimentTopic; // Stores the topic for follow-up
+        private string pendingSentiment;
+        private string pendingSentimentTopic;
         private readonly ChatBot_Response _chatBotResponse;
         private readonly CybersecurityQuiz _cybersecurityQuiz;
         private readonly Dictionary<string, int> _sentimentCounts = new Dictionary<string, int>();
@@ -36,7 +36,13 @@ namespace ST10438312_PROG6221_PoE_v3
         private (string multiChoiceQuestions, string multiChoiceAnwser, int mcCorrectAnwsers) _currentQuizQuestion;
         private (string tfQuestions, string tfAnswers, int tfCorrectAnswers) _currentTFQuizQuestion;
 
-
+        // Enhanced sentiment detection
+        private readonly string[] _positiveWords = { "happy", "good", "great", "excellent", "positive" };
+        private readonly string[] _negativeWords = { "bad", "terrible", "awful", "horrible", "negative" };
+        private readonly string[] _angryWords = { "angry", "mad", "pissed", "furious", "rage" };
+        private readonly string[] _frustratedWords = { "frustrated", "annoyed", "irritated", "upset" };
+        private readonly string[] _worriedWords = { "worried", "concerned", "scared", "anxious" };
+        private readonly string[] _curiousWords = { "curious", "wonder", "explain", "how", "what", "why" };
 
         public ChatBot(ChatBot_Response chatBotResponse, CybersecurityQuiz cybersecurityQuiz)
         {
@@ -58,271 +64,255 @@ namespace ST10438312_PROG6221_PoE_v3
 
             switch (_state)
             {
-                //---------------------------------------------------------------------------//
                 case State.WaitingForName:
                     userName = input;
                     _state = State.WaitingForTopic;
-                    return $"Thanks, {userName}! What is your favorite topic? (phishing, safe browsing, passwords)";
-                //---------------------------------------------------------------------------//
+                    return $"Thanks, {userName}! What is your favorite cybersecurity topic? (phishing, safe browsing, passwords, scams, privacy)";
 
-
-
-                //---------------------------------------------------------------------------//
                 case State.WaitingForTopic:
                     favTopic = input.ToLower();
                     _state = State.Chatting;
-                    return $"Great! You can now chat with me about cybersecurity, {userName}.";
-                //---------------------------------------------------------------------------//
+                    return $"Excellent choice, {userName}! I see you're interested in {favTopic}. " +
+                           $"You can now:\n- Ask me anything about cybersecurity\n- Say 'quiz' for a fun test\n- " +
+                           $"Share how you're feeling (e.g., 'I'm worried about...')";
 
-
-                //---------------------------------------------------------------------------//
                 case State.Chatting:
-                    // Check for sentiment keywords or favorite topic
-                    if (ContainsSentiment(input, out string sentiment))
+                    if (DetectEnhancedSentiment(input, out string sentiment, out string topic))
                     {
                         if (sentiment == "favourite")
                         {
-                            // Respond immediately with favourite sentiment
                             return _chatBotResponse.GetSentimentResponse(favTopic, userName, "favourite");
                         }
                         else
                         {
                             pendingSentiment = sentiment;
+                            pendingSentimentTopic = topic ?? DetectTopicFromInput(input);
                             _state = State.WaitingForSentimentTopic;
-                            return $"What are you {sentiment} about, {userName}?";
+                            return BuildSentimentPrompt(sentiment, topic);
                         }
                     }
-
                     else if (input.ToLower().Contains("quiz"))
                     {
                         _state = State.WaitingForQuizTypeSelection;
                         return "What type of quiz would you like?\n1. Multiple Choice\n2. True/False\n\nPlease enter 1 or 2:";
                     }
-
-                    // Normal chat
                     return _chatBotResponse.GetResponse(input, userName);
-                //---------------------------------------------------------------------------//
 
-
-                //---------------------------------------------------------------------------//
                 case State.WaitingForSentimentTopic:
-                    pendingSentimentTopic = input.ToLower();
+                    pendingSentimentTopic = string.IsNullOrEmpty(pendingSentimentTopic) ?
+                        input.ToLower() : pendingSentimentTopic;
+
                     string sentimentTopicKey = $"{pendingSentiment}_{pendingSentimentTopic}";
+                    _sentimentCounts.TryGetValue(sentimentTopicKey, out int count);
+                    _sentimentCounts[sentimentTopicKey] = count + 1;
 
-                    if (!_sentimentCounts.ContainsKey(sentimentTopicKey))
-                        _sentimentCounts[sentimentTopicKey] = 0;
-                    _sentimentCounts[sentimentTopicKey]++;
-
-                    if (_sentimentCounts[sentimentTopicKey] > 6)
+                    if (count > 3)
                     {
                         _state = State.Chatting;
-                        return $"I've tried to help you with being {pendingSentiment} about {pendingSentimentTopic} several times now. I think I've done as much as I can on this topic.";
+                        return $"We've discussed {pendingSentimentTopic} several times, {userName}. " +
+                               "Maybe we should talk about something else for now?";
                     }
 
-                    string sentimentResponse = _chatBotResponse.GetSentimentResponse(pendingSentimentTopic, userName, pendingSentiment);
+                    string response = _chatBotResponse.GetSentimentResponse(pendingSentimentTopic, userName, pendingSentiment);
                     _state = State.WaitingForFollowUp;
-                    return sentimentResponse + "\n\nDid that help at all? (yes/no)";
-                //---------------------------------------------------------------------------//
+                    return response + "\n\nDid this help address your concerns? (yes/no)";
 
-
-                //---------------------------------------------------------------------------//
                 case State.WaitingForFollowUp:
-                    string lower = input.ToLower();
-                    if (lower.Contains("yes") || lower.Contains("better"))
+                    if (input.ToLower().StartsWith("y"))
                     {
                         _state = State.Chatting;
-                        return "I'm happy to hear that!";
-                    }
-                    else if (lower.Contains("no") || lower.Contains("not"))
-                    {
-                        _state = State.Chatting;
-                        return "I'm sorry I couldn't help more. Feel free to ask again and maybe I can help this time.";
+                        return $"I'm glad to hear that, {userName}! What else can I help with?";
                     }
                     else
                     {
-                        return "I'm not sure I understand. Do you feel better? Please answer yes or no.";
+                        _state = State.Chatting;
+                        return $"I'm sorry I couldn't help more, {userName}. Maybe try asking differently or choose another topic?";
                     }
-                //---------------------------------------------------------------------------//
-
 
                 case State.WaitingForQuizTypeSelection:
-                    if (input == "1")
-                    {
-                        _isMultipleChoiceQuiz = true;
-                        _currentQuestionNumber = 0;
-                        _quizScore = 0;
-
-                        // Load first question here
-                        _currentQuizQuestion = CybersecurityQuiz.GetMCQuestionByIndex(_currentQuestionNumber);
-                        _state = State.WaitingForQuizAnswer;
-
-                        return $"Question 1:\n{_currentQuizQuestion.multiChoiceQuestions}\n\n{_currentQuizQuestion.multiChoiceAnwser}\nPlease answer with A, B, C, or D:";
-                    }
-                    else if (input == "2")
-                    {
-                        _isMultipleChoiceQuiz = false;
-                        _currentQuestionNumber = 0;
-                        _quizScore = 0;
-
-                        // Load first question here
-                        _currentTFQuizQuestion = CybersecurityQuiz.GetTFQuestionByIndex(_currentQuestionNumber);
-                        _state = State.WaitingForQuizAnswer;  
-
-                        return $"Question 1:\n{_currentTFQuizQuestion.tfQuestions}\n\n{_currentTFQuizQuestion.tfAnswers}\nPlease answer with A (True) or B (False):";
-                    }
-                    else
-                    {
-                        return "Please enter either 1 for Multiple Choice or 2 for True/False:";
-                    }
-
+                    return HandleQuizTypeSelection(input);
 
                 case State.WaitingForQuizAnswer:
-                    int userAnswerIndex;
-
-                    if (_isMultipleChoiceQuiz)
-                    {
-                        userAnswerIndex = ConvertAnswerToIndex(input);
-
-                        if (userAnswerIndex == -1)
-                            return "Invalid input. Please answer with A, B, C, or D:";
-
-                        bool correct = userAnswerIndex == _currentQuizQuestion.mcCorrectAnwsers;
-                        if (correct) _quizScore++;
-
-                        _currentQuestionNumber++;
-
-                        if (_currentQuestionNumber >= TotalQuestions)
-                        {
-                            _state = State.Chatting;
-                            return $"Your final score is {_quizScore}/{TotalQuestions}.\nThanks for playing! Type 'quiz' to try again.";
-                        }
-                        else
-                        {
-                            _currentQuizQuestion = CybersecurityQuiz.GetMCQuestionByIndex(_currentQuestionNumber);
-                            string feedback = correct ? "That's right!" : "That's incorrect.";
-                            return $"{feedback} Your score so far is {_quizScore}/{_currentQuestionNumber}.\n\n" +
-                                   $"Question {_currentQuestionNumber + 1}:\n{_currentQuizQuestion.multiChoiceQuestions}\n\n{_currentQuizQuestion.multiChoiceAnwser}\nPlease answer with A, B, C, or D:";
-                        }
-                    }
-
-                    else
-                    {
-                        userAnswerIndex = ConvertTFAnswerToIndex(input);
-                        if (userAnswerIndex == -1)
-                            return "Invalid input. Please answer with A or B:";
-
-                        bool correct = userAnswerIndex == _currentTFQuizQuestion.tfCorrectAnswers;
-                        if (correct) _quizScore++;
-
-                        _currentQuestionNumber++;
-
-                        if (_currentQuestionNumber >= TotalQuestions)
-                        {
-                            _state = State.Chatting;
-                            return $"Your final score is {_quizScore}/{TotalQuestions}.\nThanks for playing! Type 'quiz' to try again.";
-                        }
-                        else
-                        {
-                            _currentTFQuizQuestion = CybersecurityQuiz.GetTFQuestionByIndex(_currentQuestionNumber);
-                            string feedback = correct ? "That's right!" : "That's incorrect.";
-                            return $"{feedback} Your score so far is {_quizScore}/{_currentQuestionNumber}.\n\n" +
-                                   $"Question {_currentQuestionNumber + 1}:\n{_currentTFQuizQuestion.tfQuestions}\n\n{_currentTFQuizQuestion.tfAnswers}\nPlease answer with A (True) or B (False):";
-                        }
-                    }
+                    return ProcessQuizAnswer(input);
 
                 default:
                     _state = State.Chatting;
-                    return "Something went wrong. Let's continue chatting!";
-
-
+                    return "Let's continue our conversation. What would you like to know?";
             }
         }
 
-        private bool ContainsSentiment(string input, out string sentiment)
+        #region Enhanced Sentiment Detection
+        private bool DetectEnhancedSentiment(string input, out string sentiment, out string topic)
         {
             input = input.ToLower();
+            sentiment = null;
+            topic = null;
+
+            // Check for favorite topic first
             if (!string.IsNullOrEmpty(favTopic) && input.Contains(favTopic))
             {
                 sentiment = "favourite";
                 return true;
             }
-            if (input.Contains("worried"))
-            {
-                sentiment = "worried";
-                return true;
-            }
-            if (input.Contains("curious"))
-            {
-                sentiment = "curious";
-                return true;
-            }
-            if (input.Contains("frustrated"))
-            {
+
+            // Detect sentiment with context
+            if (_angryWords.Any(w => input.Contains(w)))
+                sentiment = "angry";
+            else if (_frustratedWords.Any(w => input.Contains(w)))
                 sentiment = "frustrated";
+            else if (_worriedWords.Any(w => input.Contains(w)))
+                sentiment = "worried";
+            else if (_curiousWords.Any(w => input.Contains(w)))
+                sentiment = "curious";
+            else if (_positiveWords.Any(w => input.Contains(w)))
+                sentiment = "positive";
+            else if (_negativeWords.Any(w => input.Contains(w)))
+                sentiment = "negative";
+
+            // Extract topic from input if sentiment detected
+            if (sentiment != null)
+            {
+                topic = DetectTopicFromInput(input);
                 return true;
             }
-            sentiment = null;
+
             return false;
         }
 
+        private string DetectTopicFromInput(string input)
+        {
+            var topics = new Dictionary<string, string>
+        {
+            {"phish", "phishing"}, {"password", "passwords"},
+            {"brows", "safe browsing"}, {"scam", "scams"},
+            {"privac", "privacy"}, {"hack", "hacking"}
+        };
 
-        private string AskNextQuizQuestion()
+            foreach (var pair in topics)
+            {
+                if (input.Contains(pair.Key))
+                    return pair.Value;
+            }
+            return null;
+        }
+
+        private string BuildSentimentPrompt(string sentiment, string topic)
+        {
+            if (!string.IsNullOrEmpty(topic))
+            {
+                return $"I understand you're feeling {sentiment} about {topic}, {userName}. " +
+                       $"Could you tell me more specifically what concerns you?";
+            }
+
+            return $"I detect you're feeling {sentiment}, {userName}. " +
+                   $"What cybersecurity topic is causing this feeling?";
+        }
+        #endregion
+
+        #region Quiz Handling
+        private string HandleQuizTypeSelection(string input)
+        {
+            if (input == "1")
+            {
+                _isMultipleChoiceQuiz = true;
+                _currentQuestionNumber = 0;
+                _quizScore = 0;
+                _currentQuizQuestion = CybersecurityQuiz.GetMCQuestionByIndex(0);
+
+                _state = State.WaitingForQuizAnswer;
+                return FormatMCQuestion(1, _currentQuizQuestion);
+            }
+            else if (input == "2")
+            {
+                _isMultipleChoiceQuiz = false;
+                _currentQuestionNumber = 0;
+                _quizScore = 0;
+                _currentTFQuizQuestion = CybersecurityQuiz.GetTFQuestionByIndex(0);
+
+                _state = State.WaitingForQuizAnswer;
+                return FormatTFQuestion(1, _currentTFQuizQuestion);
+            }
+            return "Please enter either 1 for Multiple Choice or 2 for True/False:";
+        }
+
+        private string ProcessQuizAnswer(string input)
         {
             if (_isMultipleChoiceQuiz)
             {
+                int answerIndex = ConvertAnswerToIndex(input);
+                if (answerIndex == -1)
+                    return "Invalid input. Please answer with A, B, C, or D:";
+
+                bool correct = answerIndex == _currentQuizQuestion.mcCorrectAnwsers;
+                if (correct) _quizScore++;
+
+                return HandleQuizTransition(correct);
+            }
+            else
+            {
+                int answerIndex = ConvertTFAnswerToIndex(input);
+                if (answerIndex == -1)
+                    return "Invalid input. Please answer with A or B:";
+
+                bool correct = answerIndex == _currentTFQuizQuestion.tfCorrectAnswers;
+                if (correct) _quizScore++;
+
+                return HandleQuizTransition(correct);
+            }
+        }
+
+        private string HandleQuizTransition(bool correct)
+        {
+            _currentQuestionNumber++;
+
+            if (_currentQuestionNumber >= TotalQuestions)
+            {
+                _state = State.Chatting;
+                return $"Quiz complete! Final score: {_quizScore}/{TotalQuestions}. " +
+                       $"Type 'quiz' to try again or ask me anything else, {userName}!";
+            }
+
+            string feedback = correct ? "Correct!" : "Incorrect!";
+            string nextQuestion;
+
+            if (_isMultipleChoiceQuiz)
+            {
                 _currentQuizQuestion = CybersecurityQuiz.GetMCQuestionByIndex(_currentQuestionNumber);
-                return $"Question {_currentQuestionNumber + 1}/{TotalQuestions}:\n{_currentQuizQuestion.multiChoiceQuestions}\n" +
-                       $"\n{_currentQuizQuestion.multiChoiceAnwser}\nPlease answer with A, B, C, or D:";
+                nextQuestion = FormatMCQuestion(_currentQuestionNumber + 1, _currentQuizQuestion);
             }
             else
             {
                 _currentTFQuizQuestion = CybersecurityQuiz.GetTFQuestionByIndex(_currentQuestionNumber);
-                return $"Question {_currentQuestionNumber + 1}/{TotalQuestions}:\n{_currentTFQuizQuestion.tfQuestions}\n" +
-                       $"\n{_currentTFQuizQuestion.tfAnswers}\nPlease answer with A (True) or B (False):";
+                nextQuestion = FormatTFQuestion(_currentQuestionNumber + 1, _currentTFQuizQuestion);
             }
+
+            return $"{feedback} Current score: {_quizScore}/{_currentQuestionNumber}\n\n{nextQuestion}";
         }
 
-        private static int ConvertAnswerToIndex(string input)
+        private string FormatMCQuestion(int number, (string q, string a, int correct) question)
         {
-            input = input.Trim().ToUpper();
-
-            switch (input)
-            {
-                case "A":
-                    return 0;
-                case "B":
-                    return 1;
-                case "C":
-                    return 2;
-                case "D":
-                    return 3;
-                default:
-                    return -1; // Invalid input
-            }
+            return $"Question {number}:\n{question.q}\n\n{question.a}\nPlease answer with A, B, C, or D:";
         }
 
-        private static int ConvertTFAnswerToIndex(string input)
+        private string FormatTFQuestion(int number, (string q, string a, int correct) question)
         {
-            input = input.Trim().ToUpper();
-
-            if (input == "A") return 0; // True
-            if (input == "B") return 1; // False
-
-            return -1; // Invalid input
+            return $"Question {number}:\n{question.q}\n\n{question.a}\nPlease answer with A (True) or B (False):";
         }
 
-        private static string IndexToLetter(int index)
+        private int ConvertAnswerToIndex(string input)
         {
-            switch (index)
-            {
-                case 0: return "A";
-                case 1: return "B";
-                case 2: return "C";
-                case 3: return "D";
-                default: return "?";
-            }
+            if (string.IsNullOrEmpty(input)) return -1;
+            char c = char.ToUpper(input[0]);
+            return c >= 'A' && c <= 'D' ? c - 'A' : -1;
         }
 
+        private int ConvertTFAnswerToIndex(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return -1;
+            char c = char.ToUpper(input[0]);
+            return c == 'A' ? 0 : c == 'B' ? 1 : -1;
+        }
+        #endregion
     }
 }
 
