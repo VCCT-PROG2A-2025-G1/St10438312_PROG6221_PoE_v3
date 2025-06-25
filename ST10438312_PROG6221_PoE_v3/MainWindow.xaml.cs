@@ -22,7 +22,8 @@ namespace ST10438312_PROG6221_PoE_v3
     {
         private List<ChatMessage> messages = new List<ChatMessage>();
         private readonly ChatBot_Response _chatBotResponse;
-        private ChatBot _chatBot = new ChatBot(new ChatBot_Response());
+        private readonly CybersecurityQuiz _cybersecurityQuiz;
+        private ChatBot _chatBot = new ChatBot(new ChatBot_Response(), new CybersecurityQuiz());
 
 
         //----------------------------------------------------------------------------------//

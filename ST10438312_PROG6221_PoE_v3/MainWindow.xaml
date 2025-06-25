@@ -99,6 +99,9 @@
 
         <Grid Grid.Column="1"
           Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="80"/>
@@ -173,9 +176,6 @@
                     </StackPanel>
                 </Button>
             </Grid>
-
         </Grid>
-
-
     </Grid>
 </Window>

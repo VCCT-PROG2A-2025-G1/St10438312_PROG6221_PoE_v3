@@ -19,8 +19,15 @@ namespace ST10438312_PROG6221_PoE_v3
 
         }
 
+        // Tone detection word banks
+        private readonly string[] worriedWords = { "worried", "concerned", "scared", "anxious", "nervous", "afraid" };
+        private readonly string[] frustratedWords = { "frustrated", "annoyed", "irritated", "upset", "sick of", "tired of" };
+        private readonly string[] angryWords = { "angry", "mad", "pissed", "furious", "rage", "livid" };
+        private readonly string[] curiousWords = { "curious", "wonder", "explain", "how", "what", "why", "tell me" };
+
         private readonly Dictionary<string, List<Func<string, string>>> responses;
         private readonly Dictionary<string, TopicResponses> sentimentResponses;
+        private string lastTopic = null;
         private readonly Random random = new Random();
 
 
