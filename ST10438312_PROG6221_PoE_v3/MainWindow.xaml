@@ -73,15 +73,6 @@
                              GroupName="Views"
                              Checked="RadioButton_Checked"/>
 
-                <RadioButton x:Name="QuizRadio" 
-                             Content="Quiz"
-                             Height="50"
-                             Foreground="White" 
-                             FontSize="14"
-                             Style="{StaticResource MenuButtonTheme}"
-                             GroupName="Views"
-                             Checked="RadioButton_Checked"/>
-
                 <RadioButton x:Name="ChatLogRadio" 
                              Content="Chat Log"
                              Height="50"
@@ -147,51 +138,7 @@
                     <StackPanel x:Name="ChatPanel" Orientation="Vertical"/>
                 </ScrollViewer>
 
-                <!-- Quiz View -->
-                <StackPanel x:Name="QuizView" 
-                           Visibility="Collapsed"
-                           Background="#36393F">
-
-                    <Label Content="Quiz Results &amp; Overview" 
-                           HorizontalAlignment="Left"
-                           Height="79"
-                           Margin="10,22,0,0"
-                           VerticalAlignment="Top" 
-                           Width="834" 
-                           FontSize="48" 
-                           FontWeight="Bold"
-                           Foreground="White"/>
-                    <Rectangle 
-                            HorizontalAlignment="Left" 
-                            Height="532" 
-                            Margin="40,155,0,0" 
-                            Stroke="Black" 
-                            VerticalAlignment="Top" Width="423"/>
-                    <Rectangle 
-                            HorizontalAlignment="Left"
-                            Height="532" Margin="623,155,0,0" Stroke="Black" VerticalAlignment="Top" Width="423"/>
-                    <Label Content="Multi-Choice Report"
-                           HorizontalAlignment="Left"
-                           Height="58" Margin="55,171,0,0"
-                           VerticalAlignment="Top"
-                           Width="390"
-                           FontSize="36"
-                           Foreground="White"
-                           FontFamily="Bahnschrift SemiBold"/>
-                    <Label Content="True or False Report"
-                           HorizontalAlignment="Left" 
-                           Height="58"
-                           Foreground="White"
-                           Margin="641,171,0,0" 
-                           VerticalAlignment="Top"
-                           Width="391" FontSize="36"
-                           FontFamily="Bahnschrift SemiBold"/>
-                    <Rectangle HorizontalAlignment="Left" Height="74" Margin="40,155,0,0" Stroke="Black" VerticalAlignment="Top" Width="423"/>
-                    <Rectangle HorizontalAlignment="Left" Height="74" Margin="623,155,0,0" Stroke="Black" VerticalAlignment="Top" Width="423"/>
-                    <Border BorderBrush="Black" BorderThickness="1" Background="#3e4147" HorizontalAlignment="Left" Height="458" Margin="40,229,0,0" VerticalAlignment="Top" Width="423"/>
-                    <Border BorderBrush="Black" BorderThickness="1" Background="#3e4147" HorizontalAlignment="Left" Height="458" Margin="623,229,0,0" VerticalAlignment="Top" Width="423"/>
-
-                </StackPanel>
+                
 
                 <!-- Chat Log View -->
                 <StackPanel x:Name="ChatLogView" 

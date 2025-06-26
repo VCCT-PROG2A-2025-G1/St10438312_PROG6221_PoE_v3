@@ -132,7 +132,6 @@ namespace ST10438312_PROG6221_PoE_v3
             if (!(sender is RadioButton radioButton)) return;
 
             ChatScrollViewer?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
-            QuizView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
             ChatLogView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
             TaskView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
             InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
@@ -144,11 +143,6 @@ namespace ST10438312_PROG6221_PoE_v3
                     InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
                     if (ViewTitle != null) 
                         ViewTitle.Content = "Chatbot";
-                    break;
-
-                case "QuizRadio":
-                    QuizView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
-                    ViewTitle.Content = "Quiz";
                     break;
 
                 case "ChatLogRadio":
@@ -331,15 +325,14 @@ namespace ST10438312_PROG6221_PoE_v3
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
             string userInput = MessageTextBox.Text.Trim();
+
             if (string.IsNullOrEmpty(userInput)) return;
 
             HandleNewMessage(userInput, true);
             MessageTextBox.Text = "";
 
             // Check for summary request
-            if (userInput.ToLower().Contains("summary") ||
-                userInput.ToLower().Contains("recap") ||
-                userInput.ToLower().Contains("overview"))
+            if (userInput.ToLower().Contains("summary") || userInput.ToLower().Contains("recap") || userInput.ToLower().Contains("overview"))
             {
                 string summary = GetChatSummary();
                 HandleNewMessage(summary, false);
@@ -366,19 +359,11 @@ namespace ST10438312_PROG6221_PoE_v3
             var chatMessage = new ChatMessage(messageText, isUser);
             messages.Add(chatMessage);
 
-            if (!isUser)
-            {
-                LogChatActivity(messageText);
-            }
+            if (!isUser){ LogChatActivity (messageText);}
 
-            if (isUser)
-            {
-                AddUserMessage(chatMessage.Message);
-            }
-            else
-            {
-                AddBotMessage(chatMessage.Message);
-            }
+            if (isUser) { AddUserMessage (chatMessage.Message); }
+
+            else { AddBotMessage (chatMessage.Message); }
         }
         //-------------------------------------------------------------------------------------//
 
@@ -532,10 +517,18 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
         private string GetSecurityTopic(List<string> keywords)
         {
-            if (keywords.Contains("phishing")) return "Phishing Awareness";
-            if (keywords.Contains("password")) return "Password Security";
-            if (keywords.Contains("scam")) return "Online Scams";
-            if (keywords.Contains("safe browsing")) return "Safe Browsing";
+            if (keywords.Contains("phishing"))
+                return "Phishing Awareness";
+
+            if (keywords.Contains("password")) 
+                return "Password Security";
+
+            if (keywords.Contains("scam")) 
+                return "Online Scams";
+
+            if (keywords.Contains("safe browsing"))
+                return "Safe Browsing";
+
             return "Security Discussion";
         }
         //-------------------------------------------------------------------------------------//
@@ -546,9 +539,9 @@ namespace ST10438312_PROG6221_PoE_v3
             var summaries = new Dictionary<string, string>
         {
             {"phishing", "How to identify and avoid phishing attempts"},
-            {"password", "Best practices for password security"},
-            {"scam", "Recognizing and preventing online scams"},
-            {"safe browsing", "Techniques for safe internet browsing"}
+            {"password", "How to create secure password"},
+            {"scam", "How to recognize and prevennt scams"},
+            {"safe browsing", "How to safely browse the internet"}
         };
 
             return string.Join("; ", keywords
