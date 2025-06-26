@@ -77,8 +77,8 @@ Click "Add Task" or press Enter
 
 Managing Tasks
 
-Complete Tasks: Click the green checkmark ✓
-Delete Tasks: Click the red X to remove
+Complete Tasks: Click the green checkmark to mark as complete
+Delete Tasks: Click the red X to remove tasks
 
 Quiz System
 
@@ -113,7 +113,6 @@ User: show my tasks
 Bot: Your Tasks:
      - Change work password (due Mar 15)
      - Complete security training (due Feb 28)
-     
 Supported Commands
 General Commands
 
@@ -148,5 +147,7 @@ The application automatically tracks:
 
 All conversation topics and interactions
 Task creation, completion, and deletion
+Quiz attempts and scores
+Security topic discussions (phishing, passwords, scams, safe browsing)
 Quiz attempts and scores
 Security topic discussions (phishing, passwords, scams, safe browsing)
