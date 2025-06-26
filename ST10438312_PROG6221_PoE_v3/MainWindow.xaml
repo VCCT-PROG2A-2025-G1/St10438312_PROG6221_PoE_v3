@@ -112,8 +112,13 @@
             </Grid.RowDefinitions>
 
             <Border>
-                <Grid HorizontalAlignment="Stretch" Background="#2F3136" Margin="0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="40,0,0,10">
+                <Grid HorizontalAlignment="Stretch"
+                      Background="#2F3136"
+                      Margin="0">
+                    
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center" 
+                                Margin="40,0,0,10">
                         <TextBlock Text="&#xE99A;" 
                                    FontFamily="Segoe MDL2 Assets" 
                                    FontSize="48" 
@@ -148,14 +153,14 @@
                            Background="#36393F">
 
                     <Label Content="Quiz Results &amp; Overview" 
-                       HorizontalAlignment="Left"
-                       Height="79"
-                       Margin="10,22,0,0"
-                       VerticalAlignment="Top" 
-                       Width="834" 
-                       FontSize="48" 
-                       FontWeight="Bold"
-                       Foreground="White"/>
+                           HorizontalAlignment="Left"
+                           Height="79"
+                           Margin="10,22,0,0"
+                           VerticalAlignment="Top" 
+                           Width="834" 
+                           FontSize="48" 
+                           FontWeight="Bold"
+                           Foreground="White"/>
                     <Rectangle 
                             HorizontalAlignment="Left" 
                             Height="532" 
@@ -192,12 +197,66 @@
                 <StackPanel x:Name="ChatLogView" 
                            Visibility="Collapsed"
                            Background="#36393F">
-                   
-                    <TextBlock Text="Chat Log View Content" Foreground="White"/>
+                    <Label Content="Activity Log"
+                           FontSize="24"
+                           Foreground="White"
+                           FontWeight="Bold"
+                           Margin="10"/>
+
+                    <ItemsControl x:Name="ActivityLogItemsControl"
+                                 ItemsSource="{Binding}"
+                                 Margin="10">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#484B51"
+                                        CornerRadius="4"
+                                        Margin="0,0,0,5"
+                                        Padding="10">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:g}'}"
+                                                   Foreground="#B9BBBE"
+                                                   FontSize="12"/>
+                                        <TextBlock Text="{Binding Description}"
+                                                   Foreground="White"
+                                                   FontWeight="Bold"
+                                                   Margin="0,5,0,0"/>
+
+                                        <!-- Details -->
+                                        <ItemsControl ItemsSource="{Binding Details}"
+                                                     Margin="10,5,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Key}"
+                                                                   Foreground="#7289DA"
+                                                                   FontWeight="SemiBold"/>
+                                                        <TextBlock Text=": "
+                                                                   Foreground="#B9BBBE"/>
+                                                        <TextBlock Text="{Binding Value}"
+                                                                   Foreground="#B9BBBE"
+                                                                   TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button x:Name="ShowMoreLogsButton"
+                            Content="Show More"
+                            HorizontalAlignment="Center"
+                            Margin="0,10"
+                            Padding="10,5"
+                            Background="#7289DA"
+                            Foreground="White"
+                            Click="ShowMoreLogsButton_Click"/>
                 </StackPanel>
 
-                <!-- Help View -->
-                <StackPanel x:Name="HelpView" 
+                <!-- Task View -->
+                <StackPanel x:Name="TaskView" 
                            Visibility="Collapsed"
                            Background="#36393F"
                            Margin="10">
@@ -294,14 +353,14 @@
 
                                 <!-- Add Task Button -->
                                 <Button Content="Add Task"
-            Background="#7289DA"
-            Foreground="White"
-            FontWeight="Bold"
-            BorderThickness="0"
-            Padding="10,5"
-            HorizontalAlignment="Right"
-            Margin="0,15,0,0"
-            Click="AddTaskButton_Click"/>
+                                        Background="#7289DA"
+                                        Foreground="White"
+                                        FontWeight="Bold"
+                                        BorderThickness="0"
+                                        Padding="10,5"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,15,0,0"
+                                        Click="AddTaskButton_Click"/>
                             </StackPanel>
                         </Border>
 
@@ -320,7 +379,7 @@
 
                                 <!-- Task List -->
                                 <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              MaxHeight="400">
+                                            MaxHeight="400">
                                     <ItemsControl x:Name="TasksItemsControl">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -339,17 +398,17 @@
 
                                                         <!-- Task Title -->
                                                         <TextBlock Text="{Binding Title}"
-                       Foreground="White"
-                       FontWeight="Bold"
-                       FontSize="18"
-                       Grid.Row="0"/>
+                                                                   Foreground="White"
+                                                                   FontWeight="Bold"
+                                                                   FontSize="18"
+                                                                   Grid.Row="0"/>
 
                                                         <!-- Task Description -->
                                                         <TextBlock Text="{Binding Description}"
-                       Foreground="#B9BBBE"
-                       Margin="0,5,0,0"
-                       TextWrapping="Wrap"
-                       Grid.Row="1"/>
+                                                                   Foreground="#B9BBBE"
+                                                                   Margin="0,5,0,0"
+                                                                   TextWrapping="Wrap"
+                                                                   Grid.Row="1"/>
 
                                                         <!-- Reminder Date/Time -->
                                                         <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,5,0,0">
@@ -361,19 +420,19 @@
 
                                                         <!-- Time Remaining -->
                                                         <TextBlock Text="{Binding TimeRemaining}"
-                       Foreground="#7289DA"
-                       FontStyle="Italic"
-                       Margin="0,5,0,0"
-                       Grid.Row="3"/>
+                                                                   Foreground="#7289DA"
+                                                                   FontStyle="Italic"
+                                                                   Margin="0,5,0,0"
+                                                                   Grid.Row="3"/>
 
                                                         <!-- Action Buttons -->
                                                         <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.RowSpan="4">
                                                             <Button Content="✓" Width="30" Height="30" Background="#43B581" 
-                        Foreground="White" Margin="0,0,5,0" Click="CompleteTaskButton_Click"
-                        Tag="{Binding Id}"/>
+                                                                    Foreground="White" Margin="0,0,5,0" Click="CompleteTaskButton_Click"
+                                                                    Tag="{Binding Id}"/>
                                                             <Button Content="✕" Width="30" Height="30" Background="#F04747" 
-                        Foreground="White" Click="DeleteTaskButton_Click"
-                        Tag="{Binding Id}"/>
+                                                                    Foreground="White" Click="DeleteTaskButton_Click"
+                                                                    Tag="{Binding Id}"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -398,6 +457,7 @@
                          Grid.Row="1"
                          Height="50"
                          Text=""
+                         FontSize="14"
                          Style="{StaticResource MessageBox}"
                          Grid.ColumnSpan="2"/>
 

@@ -10,13 +10,12 @@ namespace ST10438312_PROG6221_PoE_v3
     {
         public string Message { get; set; }
         public bool IsUser { get; set; }
-        public DateTime Timestamp { get; set; }
 
         public ChatMessage(string message, bool isUser)
         {
             Message = message;
             IsUser = isUser;
-            Timestamp = DateTime.Now;
+
         }
     }
 }

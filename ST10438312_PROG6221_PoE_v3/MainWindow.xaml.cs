@@ -21,38 +21,58 @@ namespace ST10438312_PROG6221_PoE_v3
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Existing chatbot variables
+        #region Fields and Properties
+        // Chatbot components
         private List<ChatMessage> messages = new List<ChatMessage>();
         private readonly ChatBot_Response _chatBotResponse;
         private readonly CybersecurityQuiz _cybersecurityQuiz;
         private ChatBot _chatBot = new ChatBot(new ChatBot_Response(), new CybersecurityQuiz());
 
-        // Task management system
+        // Task management
         private ObservableCollection<TaskItem> _tasks = new ObservableCollection<TaskItem>();
         private int _taskIdCounter = 1;
 
+        // Activity log
+        private ObservableCollection<ActivityLog> _activityLogs = new ObservableCollection<ActivityLog>();
+        private const int LogBatchSize = 5;
+        private int _currentLogDisplayCount = LogBatchSize;
+        private List<string> _securityKeywords = new List<string> { "phishing", "password", "passwords", "scam", "safe browsing" };
+        #endregion
+
+        #region Constructor and Initialization
+        //-------------------------------------------------------------------------------------//
         public MainWindow()
         {
             InitializeComponent();
-            InitializeTimePicker();
-            HandleNewMessage(_chatBot.StartUpMessage(), false);
-            SendButton.Click += SendButton_Click;
-            TasksItemsControl.ItemsSource = _tasks;
             this.Loaded += MainWindow_Loaded;
-        }
 
+            InitializeChatLog();
+
+
+            TasksItemsControl.ItemsSource = _tasks;
+        
+        }
+        //-------------------------------------------------------------------------------------//
+
+        //-------------------------------------------------------------------------------------//
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            InitializeTimePicker(); // Now called after all controls are loaded
+            InitializeChatLog();
+            HandleNewMessage(_chatBot.StartUpMessage(), false);
+
+            if (ViewTitle != null)
+                ViewTitle.Content = "Chatbot";
+
             ChatbotRadio.IsChecked = true;
             RadioButton_Checked(ChatbotRadio, null);
         }
+        //-------------------------------------------------------------------------------------//
 
+        //-------------------------------------------------------------------------------------//
         private void InitializeTimePicker()
         {
-            // Clear any existing items
             TaskReminderTimePicker.Items.Clear();
-
-            // Add time slots in 30-minute intervals
             for (int hour = 0; hour < 24; hour++)
             {
                 for (int minute = 0; minute < 60; minute += 30)
@@ -61,40 +81,95 @@ namespace ST10438312_PROG6221_PoE_v3
                     TaskReminderTimePicker.Items.Add(time.ToString("h:mm tt"));
                 }
             }
-
-            // Set default to current time rounded to nearest 30 minutes
             DateTime now = DateTime.Now;
             int defaultMinute = now.Minute < 30 ? 0 : 30;
             DateTime defaultTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, defaultMinute, 0);
             TaskReminderTimePicker.Text = defaultTime.ToString("h:mm tt");
         }
+        //-------------------------------------------------------------------------------------//
 
-        // Task model class
-        public class TaskItem
+        //-------------------------------------------------------------------------------------//
+        private void InitializeChatLog()
         {
-            public int Id { get; set; }
-            public string Title { get; set; }
-            public string Description { get; set; }
-            public DateTime Reminder { get; set; }
-            public bool IsCompleted { get; set; }
-
-            // Formatted properties for display
-            public string ReminderDate => Reminder.ToString("d");
-            public string ReminderTime => Reminder.ToString("t");
-            public string TimeRemaining
+            ActivityLogItemsControl.ItemsSource = new ListCollectionView(_activityLogs)
             {
-                get
-                {
-                    TimeSpan remaining = Reminder - DateTime.Now;
-                    if (remaining.TotalDays >= 1)
-                        return $"Due in {Math.Floor(remaining.TotalDays)} days";
-                    if (remaining.TotalHours >= 1)
-                        return $"Due in {Math.Floor(remaining.TotalHours)} hours";
-                    return "Due soon";
-                }
+                Filter = o => _activityLogs.IndexOf((ActivityLog)o) >= (_activityLogs.Count - _currentLogDisplayCount)
+            };
+        }
+        //-------------------------------------------------------------------------------------//
+        #endregion
+
+        #region Window Management
+        //-------------------------------------------------------------------------------------//
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                DragMove();
             }
         }
+        //-------------------------------------------------------------------------------------//
 
+        //-------------------------------------------------------------------------------------//
+        private void ButtonMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.MainWindow.WindowState = WindowState.Minimized;
+        }
+        //-------------------------------------------------------------------------------------//
+
+        //-------------------------------------------------------------------------------------//
+        private void ButtonExit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+        //-------------------------------------------------------------------------------------//
+        #endregion
+
+        #region View Navigation
+        //-------------------------------------------------------------------------------------//
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is RadioButton radioButton)) return;
+
+            ChatScrollViewer?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
+            QuizView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
+            ChatLogView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
+            TaskView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
+            InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
+
+            switch (radioButton.Name)
+            {
+                case "ChatbotRadio":
+                    ChatScrollViewer?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
+                    InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
+                    if (ViewTitle != null) 
+                        ViewTitle.Content = "Chatbot";
+                    break;
+
+                case "QuizRadio":
+                    QuizView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
+                    ViewTitle.Content = "Quiz";
+                    break;
+
+                case "ChatLogRadio":
+                    ChatLogView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
+                    ViewTitle.Content = "Activity Log";
+                    RefreshActivityLog();
+                    ShowMoreLogsButton.Visibility =
+                        _activityLogs.Count > LogBatchSize ? Visibility.Visible : Visibility.Collapsed;
+                    break;
+
+                case "HelpRadio":
+                    TaskView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
+                    ViewTitle.Content = "Tasks & Reminders";
+                    break;
+            }
+        }
+        //-------------------------------------------------------------------------------------//
+        #endregion
+
+        #region Task Management
+        //-------------------------------------------------------------------------------------//
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TaskTitleTextBox.Text))
@@ -105,27 +180,9 @@ namespace ST10438312_PROG6221_PoE_v3
 
             try
             {
-                // Parse the selected time
-                DateTime reminderDateTime;
-
-                if (TaskReminderDatePicker.SelectedDate.HasValue)
-                {
-                    DateTime selectedDate = TaskReminderDatePicker.SelectedDate.Value;
-                    string timeString = TaskReminderTimePicker.Text;
-
-                    if (DateTime.TryParse(timeString, out DateTime time))
-                    {
-                        reminderDateTime = selectedDate.Date.Add(time.TimeOfDay);
-                    }
-                    else
-                    {
-                        reminderDateTime = selectedDate.Date.AddHours(12); // Default to noon if time parsing fails
-                    }
-                }
-                else
-                {
-                    reminderDateTime = DateTime.Now.AddDays(1).Date.AddHours(12); // Default to tomorrow noon
-                }
+                DateTime reminderDateTime = TaskReminderDatePicker.SelectedDate.HasValue
+                    ? ParseReminderDateTime(TaskReminderDatePicker.SelectedDate.Value, TaskReminderTimePicker.Text)
+                    : DateTime.Now.AddDays(1).Date.AddHours(12);
 
                 var newTask = new TaskItem
                 {
@@ -137,6 +194,7 @@ namespace ST10438312_PROG6221_PoE_v3
                 };
 
                 _tasks.Add(newTask);
+                LogTaskActivity("Task Created", newTask);
                 ClearTaskInputFields();
             }
             catch (Exception ex)
@@ -144,7 +202,20 @@ namespace ST10438312_PROG6221_PoE_v3
                 MessageBox.Show($"Error creating task: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        //-------------------------------------------------------------------------------------//
 
+        //-------------------------------------------------------------------------------------//
+        private DateTime ParseReminderDateTime(DateTime date, string timeString)
+        {
+            if (DateTime.TryParse(timeString, out DateTime time))
+            {
+                return date.Date.Add(time.TimeOfDay);
+            }
+            return date.Date.AddHours(12);
+        }
+        //-------------------------------------------------------------------------------------//
+
+        //-------------------------------------------------------------------------------------//
         private void ClearTaskInputFields()
         {
             TaskTitleTextBox.Text = "";
@@ -152,7 +223,9 @@ namespace ST10438312_PROG6221_PoE_v3
             TaskReminderDatePicker.SelectedDate = null;
             TaskTitleTextBox.Focus();
         }
+        //-------------------------------------------------------------------------------------//
 
+        //-------------------------------------------------------------------------------------//
         private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is int taskId)
@@ -161,81 +234,143 @@ namespace ST10438312_PROG6221_PoE_v3
                 if (task != null)
                 {
                     task.IsCompleted = true;
-                    _tasks.Remove(task);
+                    task.CompletedDate = DateTime.Now;
+                    LogTaskActivity("Task Completed", task);
                 }
             }
         }
+        //-------------------------------------------------------------------------------------//
 
+        //-------------------------------------------------------------------------------------//
         private void DeleteTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is int taskId)
             {
                 var task = _tasks.FirstOrDefault(t => t.Id == taskId);
-                if (task != null)
+                if (task != null && MessageBox.Show($"Delete '{task.Title}'?", "Confirm",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
-                    if (MessageBox.Show($"Delete '{task.Title}'?", "Confirm",
-                        MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                    {
-                        _tasks.Remove(task);
-                    }
+                    _tasks.Remove(task);
+                    LogTaskActivity("Task Deleted", task);
                 }
             }
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
 
-        //----------------------------------------------------------------------------------//
-        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        //-------------------------------------------------------------------------------------//
+        private void LogTaskActivity(string action, TaskItem task)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            _activityLogs.Add(new ActivityLog
             {
-                DragMove();
+                Timestamp = DateTime.Now,
+                ActivityType = "Task",
+                Description = $"{action}: {task.Title}",
+                Details = new Dictionary<string, string>
+            {
+                {"Status", task.IsCompleted ? "Completed" : "Pending"},
+                {"Due Date", task.Reminder.ToString("g")}
             }
+            });
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
 
-
-        //----------------------------------------------------------------------------------//
-        private void ButtonMinimize_Click(object sender, RoutedEventArgs e)
+        //-------------------------------------------------------------------------------------//
+        private string HandleTaskQuery(string userInput)
         {
-            Application.Current.MainWindow.WindowState = WindowState.Minimized;
+            userInput = userInput.ToLower();
+            if (userInput.Contains("reminder") || userInput.Contains("task") || userInput.Contains("todo"))
+            {
+                return GetTaskSummary();
+            }
+            return null;
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
 
-
-        //----------------------------------------------------------------------------------//
-        private void ButtonExit_Click(object sender, RoutedEventArgs e)
+        //-------------------------------------------------------------------------------------//
+        private string GetTaskSummary()
         {
-            Application.Current.Shutdown();
+            if (_tasks.Count == 0) return "You don't have any tasks yet. Would you like to add one?";
+
+            var activeTasks = _tasks.Where
+                (t => !t.IsCompleted).OrderBy(t => t.Reminder).ToList();
+
+            var completedTasks = _tasks.Where
+                (t => t.IsCompleted).OrderByDescending(t => t.CompletedDate).ToList();
+
+            StringBuilder response = new StringBuilder();
+            if (activeTasks.Any())
+            {
+                response.AppendLine("---Your Active Tasks---");
+                foreach (var task in activeTasks)
+                {
+                    response.AppendLine($"- {task.Title} (Due: {task.Reminder:MMM dd, h:mm tt})");
+                    if (!string.IsNullOrEmpty(task.Description))
+                    {
+                        response.AppendLine($"  *{task.Description}*");
+                    }
+                }
+            }
+
+            if (completedTasks.Any())
+            {
+                response.AppendLine("\n---Completed Tasks---");
+                foreach (var task in completedTasks.Take(5))
+                {
+                    response.AppendLine($"- {task.Title} (Completed: {task.CompletedDate:MMM dd})");
+                }
+            }
+
+            response.AppendLine($"\nYou have {activeTasks.Count} active and {completedTasks.Count} completed tasks.");
+            return response.ToString();
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
+        #endregion
 
-
-
-
-        //----------------------------------------------------------------------------------//
+        #region Chat Functionality
+        //-------------------------------------------------------------------------------------//
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
-
             string userInput = MessageTextBox.Text.Trim();
             if (string.IsNullOrEmpty(userInput)) return;
 
             HandleNewMessage(userInput, true);
             MessageTextBox.Text = "";
 
+            // Check for summary request
+            if (userInput.ToLower().Contains("summary") ||
+                userInput.ToLower().Contains("recap") ||
+                userInput.ToLower().Contains("overview"))
+            {
+                string summary = GetChatSummary();
+                HandleNewMessage(summary, false);
+                return;
+            }
+
+            // Check if it's a task-related query
+            string taskResponse = HandleTaskQuery(userInput);
+            if (taskResponse != null)
+            {
+                HandleNewMessage(taskResponse, false);
+                return;
+            }
+
+            // Otherwise process as normal chatbot message
             string botResponse = _chatBot.ProcessUserInput(userInput);
             HandleNewMessage(botResponse, false);
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
 
-
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
         public void HandleNewMessage(string messageText, bool isUser)
         {
-            // Store the message data
             var chatMessage = new ChatMessage(messageText, isUser);
             messages.Add(chatMessage);
 
-            // Display it visually
+            if (!isUser)
+            {
+                LogChatActivity(messageText);
+            }
+
             if (isUser)
             {
                 AddUserMessage(chatMessage.Message);
@@ -245,15 +380,89 @@ namespace ST10438312_PROG6221_PoE_v3
                 AddBotMessage(chatMessage.Message);
             }
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
 
+        //-------------------------------------------------------------------------------------//
+        private void LogChatActivity(string message)
+        {
+            var foundKeywords = _securityKeywords
+                .Where(k => message.IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
 
-        //----------------------------------------------------------------------------------//
+            if (foundKeywords.Any())
+            {
+                _activityLogs.Add(new ActivityLog
+                {
+                    Timestamp = DateTime.Now,
+                    ActivityType = "Chat",
+                    Description = "Cybersecurity topic discussed",
+                    Details = new Dictionary<string, string>
+                {
+                    {"Keywords", string.Join(", ", foundKeywords)},
+                    {"Topic", GetSecurityTopic(foundKeywords)},
+                    {"Summary", GetTopicSummary(foundKeywords)}
+                }
+                });
+            }
+        }
+        //-------------------------------------------------------------------------------------//
+
+        //-------------------------------------------------------------------------------------//
+        private string GetChatSummary()
+        {
+            if (messages.Count == 0)
+            {
+                return "There's no conversation history yet.";
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine("---Conversation Summary---");
+            sb.AppendLine($"Total messages: {messages.Count}");
+
+            // Count user vs bot messages
+            int userMessages = messages.Count(m => m.IsUser);
+            int botMessages = messages.Count - userMessages;
+            sb.AppendLine($"- Total User Messages: {userMessages} ");
+            sb.AppendLine($"- Total Bot Messages: {botMessages} ");
+
+            // Get recent topics
+            var recentKeywords = _activityLogs
+                .Where(log => log.ActivityType == "Chat")
+                .SelectMany(log => log.Details["Keywords"].Split(','))
+                .Select(k => k.Trim())
+                .Distinct()
+                .Take(3)
+                .ToList();
+
+            if (recentKeywords.Any())
+            {
+                sb.AppendLine("\nRecent topics discussed:");
+                foreach (var keyword in recentKeywords)
+                {
+                    sb.AppendLine($"- {keyword}");
+                }
+            }
+
+            // Get active tasks
+            int activeTasks = _tasks.Count(t => !t.IsCompleted);
+            if (activeTasks > 0)
+            {
+                sb.AppendLine($"\nYou have {activeTasks} pending tasks:");
+                foreach (var task in _tasks.Where(t => !t.IsCompleted).Take(3))
+                {
+                    sb.AppendLine($"- {task.Title} (due {task.Reminder:MMM dd})");
+                }
+            }
+
+            return sb.ToString();
+        }
+        //-------------------------------------------------------------------------------------//
+
+        //-------------------------------------------------------------------------------------//
         public void AddUserMessage(string message)
         {
             var userBubble = new Border
             {
-
                 Background = new SolidColorBrush(Color.FromRgb(88, 101, 242)),
                 CornerRadius = new CornerRadius(15),
                 Padding = new Thickness(10),
@@ -268,14 +477,12 @@ namespace ST10438312_PROG6221_PoE_v3
                     TextWrapping = TextWrapping.Wrap
                 }
             };
-
             ChatPanel.Children.Add(userBubble);
             ChatScrollViewer.ScrollToEnd();
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
 
-
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
         public void AddBotMessage(string message)
         {
             var botBubble = new Border
@@ -294,55 +501,62 @@ namespace ST10438312_PROG6221_PoE_v3
                     TextWrapping = TextWrapping.Wrap
                 }
             };
-
             ChatPanel.Children.Add(botBubble);
             ChatScrollViewer.ScrollToEnd();
         }
-        //----------------------------------------------------------------------------------//
+        //-------------------------------------------------------------------------------------//
+        #endregion
 
-        public Action<string> GetMessageHandler(string userInput)
+
+        #region Activity Log
+        //-------------------------------------------------------------------------------------//
+        private void RefreshActivityLog()
         {
-            return AddBotMessage;
+            ((ListCollectionView)ActivityLogItemsControl.ItemsSource).Refresh();
         }
+        //-------------------------------------------------------------------------------------//
 
-        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        //-------------------------------------------------------------------------------------//
+        private void ShowMoreLogsButton_Click(object sender, RoutedEventArgs e)
         {
+            _currentLogDisplayCount += LogBatchSize;
+            RefreshActivityLog();
+
+            if (_currentLogDisplayCount >= _activityLogs.Count)
             {
-                if (!(sender is RadioButton radioButton)) return;
-
-                // Safely hide all views if they exist
-                ChatScrollViewer?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
-                QuizView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
-                ChatLogView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
-                HelpView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
-                InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
-
-                // Show the appropriate view
-                switch (radioButton.Name)
-                {
-                    case "ChatbotRadio":
-                        ChatScrollViewer?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
-                        InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
-                        if (ViewTitle != null) ViewTitle.Content = "Chatbot";
-                        break;
-
-                    case "QuizRadio":
-                        QuizView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
-                        if (ViewTitle != null) ViewTitle.Content = "Quiz";
-                        break;
-
-                    case "ChatLogRadio":
-                        ChatLogView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
-                        if (ViewTitle != null) ViewTitle.Content = "Chat Log";
-                        break;
-
-                    case "HelpRadio":
-                        HelpView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
-                        if (ViewTitle != null) ViewTitle.Content = "Help";
-                        break;
-                }
+                ShowMoreLogsButton.Visibility = Visibility.Collapsed;
             }
         }
+        //-------------------------------------------------------------------------------------//
 
+        //-------------------------------------------------------------------------------------//
+        private string GetSecurityTopic(List<string> keywords)
+        {
+            if (keywords.Contains("phishing")) return "Phishing Awareness";
+            if (keywords.Contains("password")) return "Password Security";
+            if (keywords.Contains("scam")) return "Online Scams";
+            if (keywords.Contains("safe browsing")) return "Safe Browsing";
+            return "Security Discussion";
+        }
+        //-------------------------------------------------------------------------------------//
+
+        //-------------------------------------------------------------------------------------//
+        private string GetTopicSummary(List<string> keywords)
+        {
+            var summaries = new Dictionary<string, string>
+        {
+            {"phishing", "How to identify and avoid phishing attempts"},
+            {"password", "Best practices for password security"},
+            {"scam", "Recognizing and preventing online scams"},
+            {"safe browsing", "Techniques for safe internet browsing"}
+        };
+
+            return string.Join("; ", keywords
+                .Where(k => summaries.ContainsKey(k))
+                .Select(k => summaries[k])
+                .Distinct());
+        }
+        //-------------------------------------------------------------------------------------//
+        #endregion
     }
 }
