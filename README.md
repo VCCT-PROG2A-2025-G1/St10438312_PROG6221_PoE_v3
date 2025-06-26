@@ -1,153 +1,183 @@
-Cybersecurity Awareness Chatbot
+# Cybersecurity Awareness Chatbot
+
 A modern WPF desktop application that provides an interactive cybersecurity education experience through an intelligent chatbot interface, task management, and quiz system.
-Features
-Enhanced Chat Experience
 
-Personalized Conversation: Greets users by name and remembers their favorite cybersecurity topic
-Sentiment Detection: Recognizes emotional keywords (e.g., "worried", "curious", "frustrated") and tailors responses accordingly
-Conversation Summaries: Provides detailed summaries when requested using keywords like "summary", "recap", or "overview"
+---
 
-Task Management System
+## Features
 
-Create Tasks: Add reminders with titles, descriptions, and due dates
-Track Progress: Mark tasks as complete or delete them
-Task Overview: View all tasks by asking "show my tasks" in chat
+### Enhanced Chat Experience
 
-Activity Logging
+- **Personalized Conversation**: Greets users by name and remembers their favorite cybersecurity topic
+- **Sentiment Detection**: Recognizes emotional keywords (e.g., "worried", "curious", "frustrated") and tailors responses accordingly
+- **Conversation Summaries**: Provides detailed summaries when requested using keywords like "summary", "recap", or "overview"
 
-Comprehensive Tracking: Logs tasks, quiz attempts, and chat topics
-Security Topic Detection: Highlights discussions about phishing, passwords, scams, and safe browsing
+### Task Management System
 
-Quiz System
+- **Create Tasks**: Add reminders with titles, descriptions, and due dates
+- **Track Progress**: Mark tasks as complete or delete them
+- **Task Overview**: View all tasks by asking "show my tasks" in chat
 
-Multiple Quiz Types: Choose between multi-choice and true/false format quizzes
-Immediate Feedback: Get instant results and explanations
+### Activity Logging
 
-User Interface
+- **Comprehensive Tracking**: Logs tasks, quiz attempts, and chat topics
+- **Security Topic Detection**: Highlights discussions about phishing, passwords, scams, and safe browsing
 
-Modern WPF Interface: Clean, dark-themed desktop application
-Multiple Views: Switch between chatbot, help, quiz, and activity log sections
+### Quiz System
 
-Prerequisites
+- **Multiple Quiz Types**: Choose between multi-choice and true/false format quizzes
+- **Immediate Feedback**: Get instant results and explanations
 
-Visual Studio 2022 (or later)
-.NET Framework 4.8
-Windows 10/11
+### User Interface
 
-Setup Instructions
+- **Modern WPF Interface**: Clean, dark-themed desktop application
+- **Multiple Views**: Switch between chatbot, help, quiz, and activity log sections
 
-Clone the repository
-Open the solution in Visual Studio 2022
-Build and run the application
+---
 
-Usage Guide
-Getting Started
+## Prerequisites
 
-Launch the Application: The bot will greet you with a welcome message
-Navigation: Use the left sidebar to access three main sections:
+- Visual Studio 2022 (or later)
+- .NET Framework 4.8
+- Windows 10/11
 
-Chatbot: Main conversation interface
-Quiz: Take cybersecurity quizzes
-Activity Log: View conversation history and activities
+---
 
+## Setup Instructions
 
+1. Clone the repository
+2. Open the solution in Visual Studio 2022
+3. Build and run the application
 
-Chat Features
-Ask Cybersecurity Questions
+---
+
+## Usage Guide
+
+### Getting Started
+
+1. **Launch the Application**: The bot will greet you with a welcome message
+2. **Navigation**: Use the left sidebar to access three main sections:
+   - **Chatbot**: Main conversation interface
+   - **Quiz**: Take cybersecurity quizzes
+   - **Activity Log**: View conversation history and activities
+
+### Chat Features
+
+#### Ask Cybersecurity Questions
 Examples:
-- "What is phishing?"
-- "How to create strong passwords?"
-- "What are common online scams?"
-Request Conversation Summaries
+
+"What is phishing?"
+"How to create strong passwords?"
+"What are common online scams?"
+
+
+#### Request Conversation Summaries
 Examples:
-- "Can you summarize our chat?"
-- "Give me a recap"
-- "What have we discussed?"
-Manage Tasks Through Chat
+
+"Can you summarize our chat?"
+"Give me a recap"
+"What have we discussed?"
+
+
+#### Manage Tasks Through Chat
 Examples:
-- "Add task: Call IT about password policy"
-- "Show my tasks"
-- "What reminders do I have?"
-Task Management
-Adding Tasks
 
-Enter title and description
-Set reminder date/time
-Click "Add Task" or press Enter
+"Add task: Call IT about password policy"
+"Show my tasks"
+"What reminders do I have?"
 
-Managing Tasks
 
-Complete Tasks: Click the green checkmark to mark as complete
-Delete Tasks: Click the red X to remove tasks
+### Task Management
 
-Quiz System
+#### Adding Tasks
 
-Select quiz type (Multi-Choice or True/False)
-Answer questions
-View immediate feedback and explanations
+1. Enter title and description
+2. Set reminder date/time
+3. Click "Add Task" or press Enter
 
-Example Conversations
-Basic Chat Interaction
+#### Managing Tasks
+
+- **Complete Tasks**: Click the green checkmark to mark as complete
+- **Delete Tasks**: Click the red X to remove tasks
+
+### Quiz System
+
+1. Select quiz type (Multi-Choice or True/False)
+2. Answer questions
+3. View immediate feedback and explanations
+
+---
+
+## Example Conversations
+
+### Basic Chat Interaction
 Bot: Hello! I'm your Cybersecurity Assistant. What's your name?
 User: Alex
-
-Bot: Welcome, Alex! Which security topic interests you most? 
-     (phishing/passwords/scams/safe browsing)
+Bot: Welcome, Alex! Which security topic interests you most?
+(phishing/passwords/scams/safe browsing)
 User: phishing
-
 Bot: I'll remember phishing is your focus area. Ask me anything!
 User: I'm worried about email scams
-
 Bot: I understand your concern, Alex. For phishing emails, always check...
 User: summary
-
 Bot: Conversation Summary
-     Total messages: 6
-     Topics discussed: phishing, email scams
-     1 pending task: Review email security (due Friday)
-Task Management Example
+Total messages: 6
+Topics discussed: phishing, email scams
+1 pending task: Review email security (due Friday)
+
+### Task Management Example
 User: Add task: Change work password every 90 days
 Bot: Added task! Due date set to 90 days from now.
-
 User: show my tasks
 Bot: Your Tasks:
-     - Change work password (due Mar 15)
-     - Complete security training (due Feb 28)
-Supported Commands
-General Commands
+- Change work password (due Mar 15)
+- Complete security training (due Feb 28)
 
-help - Show available commands
-summary - Get conversation recap
+---
 
-Task Commands
+## Supported Commands
 
-add task [description] - Create new reminder
-show tasks - List all tasks
-complete task [number] - Mark task as done
+### General Commands
 
-Quiz Commands
+- `help` - Show available commands
+- `summary` - Get conversation recap
 
-start quiz - Begin a new quiz
+### Task Commands
 
-Technical Details
-Architecture
+- `add task [description]` - Create new reminder
+- `show tasks` - List all tasks
+- `complete task [number]` - Mark task as done
 
-MVVM Pattern: Separates UI from business logic
-WPF Framework: Modern Windows desktop interface
-Modular Design: Independent components for chat, tasks, and quizzes
+### Quiz Commands
 
-Data Management
+- `start quiz` - Begin a new quiz
 
-Conversation history stored in memory
-Task data persists during session
-Quiz results saved for performance tracking
+---
 
-Activity Tracking
+## Technical Details
+
+### Architecture
+
+- **MVVM Pattern**: Separates UI from business logic
+- **WPF Framework**: Modern Windows desktop interface
+- **Modular Design**: Independent components for chat, tasks, and quizzes
+
+### Data Management
+
+- Conversation history stored in memory
+- Task data persists during session
+- Quiz results saved for performance tracking
+
+---
+
+## Activity Tracking
+
 The application automatically tracks:
 
-All conversation topics and interactions
-Task creation, completion, and deletion
-Quiz attempts and scores
-Security topic discussions (phishing, passwords, scams, safe browsing)
-Quiz attempts and scores
-Security topic discussions (phishing, passwords, scams, safe browsing)
+- All conversation topics and interactions
+- Task creation, completion, and deletion
+- Quiz attempts and scores
+- Security topic discussions (phishing, passwords, scams, safe browsing)
+
+---
+
