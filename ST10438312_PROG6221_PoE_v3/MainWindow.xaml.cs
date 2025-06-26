@@ -1,4 +1,24 @@
-﻿using System;
+﻿// Andre Fourie
+// ST10438312
+// Group 1
+
+// Refrences 
+/*    
+ *    https://learn.microsoft.com/en-us/dotnet/csharp/
+ *    https://www.w3schools.com/cs/index.php
+ *    https://www.youtube.com/watch?v=PzP8mw7JUzI&t=626s
+ *    https://www.youtube.com/watch?v=QuczbW66ejw&t=109s
+ *    https://www.youtube.com/watch?v=rfMIayISSW0&t=8s
+ *    https://www.youtube.com/watch?v=V9DkvcT27WI&t=558s
+ *    https://www.youtube.com/watch?v=mIY8TRPNx1o&t=187s
+ *    https://www.youtube.com/watch?v=oSeYvMEH7jc
+ *    https://learn.microsoft.com/en-us/windows/apps/desktop/
+ *    https://learn.microsoft.com/en-us/windows/apps/design/layout/layouts-with-xaml
+ *    https://www.tutorialspoint.com/wpf/wpf_xaml_overview.htm
+ *    https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.datetimepicker?view=windowsdesktop-9.0
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -111,6 +131,7 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Custom button to minimize window
         private void ButtonMinimize_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.MainWindow.WindowState = WindowState.Minimized;
@@ -118,6 +139,7 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Custom Button to exit window
         private void ButtonExit_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -127,24 +149,31 @@ namespace ST10438312_PROG6221_PoE_v3
 
         #region View Navigation
         //-------------------------------------------------------------------------------------//
+        // Method to check whch radio button has been pressed
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
+            
             if (!(sender is RadioButton radioButton)) return;
-
+            // Makes it so that the windows are not visible yet
             ChatScrollViewer?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
             ChatLogView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
             TaskView?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
             InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Collapsed);
 
+            // Checks to see what radioButton has been pressed, 
+            // Button that corresponds with window will become visible when clicked
             switch (radioButton.Name)
             {
+                // Makes the Chatbot visible
                 case "ChatbotRadio":
                     ChatScrollViewer?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
                     InputArea?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
+                    // IF statement that ensure chatbot window is the default
                     if (ViewTitle != null) 
                         ViewTitle.Content = "Chatbot";
                     break;
 
+                // Makes the Chat Log Visible
                 case "ChatLogRadio":
                     ChatLogView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
                     ViewTitle.Content = "Activity Log";
@@ -153,6 +182,7 @@ namespace ST10438312_PROG6221_PoE_v3
                         _activityLogs.Count > LogBatchSize ? Visibility.Visible : Visibility.Collapsed;
                     break;
 
+                // Makes the task view visible
                 case "HelpRadio":
                     TaskView?.SetCurrentValue(VisibilityProperty, Visibility.Visible);
                     ViewTitle.Content = "Tasks & Reminders";
@@ -164,8 +194,10 @@ namespace ST10438312_PROG6221_PoE_v3
 
         #region Task Management
         //-------------------------------------------------------------------------------------//
+        // Method for adding a task
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
+            // Checks to see if something has been entered in the taskbox
             if (string.IsNullOrWhiteSpace(TaskTitleTextBox.Text))
             {
                 MessageBox.Show("Please enter a task title", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -174,10 +206,12 @@ namespace ST10438312_PROG6221_PoE_v3
 
             try
             {
+                // Gets the date and time the user selected
                 DateTime reminderDateTime = TaskReminderDatePicker.SelectedDate.HasValue
                     ? ParseReminderDateTime(TaskReminderDatePicker.SelectedDate.Value, TaskReminderTimePicker.Text)
                     : DateTime.Now.AddDays(1).Date.AddHours(12);
 
+                // Adds new task, fills in all the values of new task
                 var newTask = new TaskItem
                 {
                     Id = _taskIdCounter++,
@@ -187,6 +221,7 @@ namespace ST10438312_PROG6221_PoE_v3
                     IsCompleted = false
                 };
 
+                // Adds the new task to the log
                 _tasks.Add(newTask);
                 LogTaskActivity("Task Created", newTask);
                 ClearTaskInputFields();
@@ -210,6 +245,7 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Method that clears areas after user adds task
         private void ClearTaskInputFields()
         {
             TaskTitleTextBox.Text = "";
@@ -220,8 +256,10 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Method to set task as complete
         private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
         {
+            // Checks to see if user pressed button and what task to delete
             if (sender is Button button && button.Tag is int taskId)
             {
                 var task = _tasks.FirstOrDefault(t => t.Id == taskId);
@@ -236,14 +274,18 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Method to delete the task from the list
         private void DeleteTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is int taskId)
             {
                 var task = _tasks.FirstOrDefault(t => t.Id == taskId);
+
+                // If statement to confirm if the user want to delete task
                 if (task != null && MessageBox.Show($"Delete '{task.Title}'?", "Confirm",
                     MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
+                    // Removes the tasks
                     _tasks.Remove(task);
                     LogTaskActivity("Task Deleted", task);
                 }
@@ -252,6 +294,7 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Method to add task to the log
         private void LogTaskActivity(string action, TaskItem task)
         {
             _activityLogs.Add(new ActivityLog
@@ -269,9 +312,12 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Checks to see if the user wants to view tasks
         private string HandleTaskQuery(string userInput)
         {
             userInput = userInput.ToLower();
+
+            // Checks if user input contains these words
             if (userInput.Contains("reminder") || userInput.Contains("task") || userInput.Contains("todo"))
             {
                 return GetTaskSummary();
@@ -281,16 +327,22 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Method to get the task summary
         private string GetTaskSummary()
         {
+            // Checks if a task has been added
             if (_tasks.Count == 0) return "You don't have any tasks yet. Would you like to add one?";
 
+            // Gets the active tasks
             var activeTasks = _tasks.Where
                 (t => !t.IsCompleted).OrderBy(t => t.Reminder).ToList();
 
+            // Get complete tasks
             var completedTasks = _tasks.Where
                 (t => t.IsCompleted).OrderByDescending(t => t.CompletedDate).ToList();
 
+
+            // Create the output for the task summary in chatbot
             StringBuilder response = new StringBuilder();
             if (activeTasks.Any())
             {
@@ -359,11 +411,15 @@ namespace ST10438312_PROG6221_PoE_v3
             var chatMessage = new ChatMessage(messageText, isUser);
             messages.Add(chatMessage);
 
+            // Log bot messages for activity tracking
             if (!isUser){ LogChatActivity (messageText);}
 
-            if (isUser) { AddUserMessage (chatMessage.Message); }
+            // Display the message in the appropriate format
+            if (isUser){
+                AddUserMessage (chatMessage.Message); }
 
-            else { AddBotMessage (chatMessage.Message); }
+            else {
+                AddBotMessage (chatMessage.Message); }
         }
         //-------------------------------------------------------------------------------------//
 
@@ -428,7 +484,7 @@ namespace ST10438312_PROG6221_PoE_v3
                 }
             }
 
-            // Get active tasks
+            // List pending tasks
             int activeTasks = _tasks.Count(t => !t.IsCompleted);
             if (activeTasks > 0)
             {
@@ -444,6 +500,7 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Adds a new user message bubble to the chat panel with appropriate styling.
         public void AddUserMessage(string message)
         {
             var userBubble = new Border
@@ -468,6 +525,7 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        //  Adds a new bot message bubble to the chat panel with appropriate styling.
         public void AddBotMessage(string message)
         {
             var botBubble = new Border
@@ -515,6 +573,7 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Method to get keywords in userInput
         private string GetSecurityTopic(List<string> keywords)
         {
             if (keywords.Contains("phishing"))
@@ -534,8 +593,10 @@ namespace ST10438312_PROG6221_PoE_v3
         //-------------------------------------------------------------------------------------//
 
         //-------------------------------------------------------------------------------------//
+        // Stores how the keywords will be displayed in the task view
         private string GetTopicSummary(List<string> keywords)
         {
+            // Dictionary for the keys and definitions
             var summaries = new Dictionary<string, string>
         {
             {"phishing", "How to identify and avoid phishing attempts"},

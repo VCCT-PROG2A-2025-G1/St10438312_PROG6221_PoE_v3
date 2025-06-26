@@ -9,7 +9,6 @@ namespace ST10438312_PROG6221_PoE_v3
     public class TaskItem
     {
         // Task model class
-        
             public int Id { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }

@@ -64,11 +64,13 @@ namespace ST10438312_PROG6221_PoE_v3
 
             switch (_state)
             {
+                // Case to accept user name
                 case State.WaitingForName:
                     userName = input;
                     _state = State.WaitingForTopic;
                     return $"Thanks, {userName}! What is your favorite cybersecurity topic? (phishing, safe browsing, passwords, scams, privacy)";
 
+                // Case to get user fav topic 
                 case State.WaitingForTopic:
                     favTopic = input.ToLower();
                     _state = State.Chatting;
@@ -76,13 +78,16 @@ namespace ST10438312_PROG6221_PoE_v3
                            $"You can now:\n- Ask me anything about cybersecurity\n- Say 'quiz' for a fun test\n- " +
                            $"Share how you're feeling (e.g., 'I'm worried about...')";
 
+                // Case when user is just talking to chatbot
                 case State.Chatting:
                     if (DetectEnhancedSentiment(input, out string sentiment, out string topic))
                     {
+                        // Checks if users response contains his favorite topic
                         if (sentiment == "favourite")
                         {
                             return _chatBotResponse.GetSentimentResponse(favTopic, userName, "favourite");
                         }
+                        // Checks if the users input contains a sentiment word
                         else
                         {
                             pendingSentiment = sentiment;
@@ -91,6 +96,7 @@ namespace ST10438312_PROG6221_PoE_v3
                             return BuildSentimentPrompt(sentiment, topic);
                         }
                     }
+                    // Checks if the user wants to play a quiz
                     else if (input.ToLower().Contains("quiz"))
                     {
                         _state = State.WaitingForQuizTypeSelection;
@@ -98,6 +104,7 @@ namespace ST10438312_PROG6221_PoE_v3
                     }
                     return _chatBotResponse.GetResponse(input, userName);
 
+                // Case when sentiment word is detected, asks user for more details
                 case State.WaitingForSentimentTopic:
                     pendingSentimentTopic = string.IsNullOrEmpty(pendingSentimentTopic) ?
                         input.ToLower() : pendingSentimentTopic;
@@ -106,6 +113,7 @@ namespace ST10438312_PROG6221_PoE_v3
                     _sentimentCounts.TryGetValue(sentimentTopicKey, out int count);
                     _sentimentCounts[sentimentTopicKey] = count + 1;
 
+                    // If user asks about the same topic to much, bot will stop giving anwsers
                     if (count > 3)
                     {
                         _state = State.Chatting;
@@ -113,35 +121,42 @@ namespace ST10438312_PROG6221_PoE_v3
                                "Maybe we should talk about something else for now?";
                     }
 
+                    // Asks if it helped the user
                     string response = _chatBotResponse.GetSentimentResponse(pendingSentimentTopic, userName, pendingSentiment);
                     _state = State.WaitingForFollowUp;
                     return response + "\n\nDid this help address your concerns? (yes/no)";
 
+                // Case that checks if the user found it helpful
                 case State.WaitingForFollowUp:
                     if (input.ToLower().StartsWith("y"))
                     {
+                        // When user says it was helpful
                         _state = State.Chatting;
                         return $"I'm glad to hear that, {userName}! What else can I help with?";
                     }
                     else
                     {
+                        // When user say it was not helpful
                         _state = State.Chatting;
                         return $"I'm sorry I couldn't help more, {userName}. Maybe try asking differently or choose another topic?";
                     }
 
+                // Case that waits for user to enter quiz type
                 case State.WaitingForQuizTypeSelection:
                     return HandleQuizTypeSelection(input);
 
+                // Waits for user to give anwser of question
                 case State.WaitingForQuizAnswer:
                     return ProcessQuizAnswer(input);
 
+                // Default state
                 default:
                     _state = State.Chatting;
                     return "Let's continue our conversation. What would you like to know?";
             }
         }
 
-        #region Enhanced Sentiment Detection
+        #region Sentiment Detection
         private bool DetectEnhancedSentiment(string input, out string sentiment, out string topic)
         {
             input = input.ToLower();
@@ -179,6 +194,7 @@ namespace ST10438312_PROG6221_PoE_v3
             return false;
         }
 
+        // Checks for the topic
         private string DetectTopicFromInput(string input)
         {
             var topics = new Dictionary<string, string>
@@ -196,6 +212,7 @@ namespace ST10438312_PROG6221_PoE_v3
             return null;
         }
 
+        // Builds how the sentiment response is displayed
         private string BuildSentimentPrompt(string sentiment, string topic)
         {
             if (!string.IsNullOrEmpty(topic))
@@ -210,8 +227,10 @@ namespace ST10438312_PROG6221_PoE_v3
         #endregion
 
         #region Quiz Handling
+        // Checks what quiz type the user wants to play
         private string HandleQuizTypeSelection(string input)
         {
+            // Multiple choice
             if (input == "1")
             {
                 _isMultipleChoiceQuiz = true;
@@ -222,6 +241,7 @@ namespace ST10438312_PROG6221_PoE_v3
                 _state = State.WaitingForQuizAnswer;
                 return FormatMCQuestion(1, _currentQuizQuestion);
             }
+            // True or false
             else if (input == "2")
             {
                 _isMultipleChoiceQuiz = false;
@@ -235,25 +255,31 @@ namespace ST10438312_PROG6221_PoE_v3
             return "Please enter either 1 for Multiple Choice or 2 for True/False:";
         }
 
+        // Method that takes and processes users input
         private string ProcessQuizAnswer(string input)
         {
             if (_isMultipleChoiceQuiz)
             {
+                // Checks if the users choice is valid
                 int answerIndex = ConvertAnswerToIndex(input);
                 if (answerIndex == -1)
                     return "Invalid input. Please answer with A, B, C, or D:";
 
+                // Compare users anwser to correct anwser, if correct plus 1 score
                 bool correct = answerIndex == _currentQuizQuestion.mcCorrectAnwsers;
                 if (correct) _quizScore++;
 
                 return HandleQuizTransition(correct);
             }
+            // True or false 
             else
             {
+                // Checks if users anwser choice is falid
                 int answerIndex = ConvertTFAnswerToIndex(input);
                 if (answerIndex == -1)
                     return "Invalid input. Please answer with A or B:";
 
+                // Compare users anwser to correct anwser, if correct plus 1 score
                 bool correct = answerIndex == _currentTFQuizQuestion.tfCorrectAnswers;
                 if (correct) _quizScore++;
 
@@ -261,10 +287,12 @@ namespace ST10438312_PROG6221_PoE_v3
             }
         }
 
+        // Handles the transition between questions
         private string HandleQuizTransition(bool correct)
         {
             _currentQuestionNumber++;
 
+            // Checks to see if there are questions left
             if (_currentQuestionNumber >= TotalQuestions)
             {
                 _state = State.Chatting;
@@ -275,6 +303,7 @@ namespace ST10438312_PROG6221_PoE_v3
             string feedback = correct ? "Correct!" : "Incorrect!";
             string nextQuestion;
 
+            // Formats next cybersecurity question based on feedback
             if (_isMultipleChoiceQuiz)
             {
                 _currentQuizQuestion = CybersecurityQuiz.GetMCQuestionByIndex(_currentQuestionNumber);
@@ -289,16 +318,19 @@ namespace ST10438312_PROG6221_PoE_v3
             return $"{feedback} Current score: {_quizScore}/{_currentQuestionNumber}\n\n{nextQuestion}";
         }
 
+        // MEthod used to fomat how the multi choice question looks
         private string FormatMCQuestion(int number, (string q, string a, int correct) question)
         {
             return $"Question {number}:\n{question.q}\n\n{question.a}\nPlease answer with A, B, C, or D:";
         }
 
+        // Method used to format how the true or false questions look
         private string FormatTFQuestion(int number, (string q, string a, int correct) question)
         {
             return $"Question {number}:\n{question.q}\n\n{question.a}\nPlease answer with A (True) or B (False):";
         }
 
+        // Method to convert the user anwser to index so that it can be compared
         private int ConvertAnswerToIndex(string input)
         {
             if (string.IsNullOrEmpty(input)) return -1;
@@ -306,6 +338,7 @@ namespace ST10438312_PROG6221_PoE_v3
             return c >= 'A' && c <= 'D' ? c - 'A' : -1;
         }
 
+        // Method to convert the user anwser to index so that it can be compared
         private int ConvertTFAnswerToIndex(string input)
         {
             if (string.IsNullOrEmpty(input)) return -1;

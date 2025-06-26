@@ -118,8 +118,6 @@
   <ItemGroup>
     <Resource Include="Windows\icons8-atari-100 %281%29.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="View\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
