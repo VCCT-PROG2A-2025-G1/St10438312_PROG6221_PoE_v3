@@ -86,7 +86,7 @@ Select quiz type (Multi-Choice or True/False)
 Answer questions
 View immediate feedback and explanations
 
-💬 Example Conversations
+Example Conversations
 Basic Chat Interaction
 Bot: Hello! I'm your Cybersecurity Assistant. What's your name?
 User: Alex
